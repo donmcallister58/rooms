@@ -151,6 +151,7 @@ final class WindowEngine {
     /// keeps the arrangement you made: windows that stay keep their places and the
     /// room keeps its layouts. In My Layout a new window takes the biggest free part of
     /// the grid; with none free it floats on top until you arrange it and press ⌘S.
+    /// Space a removed window leaves stays free for the next one.
     /// `floating`: new windows with no place in My Layout.
     func edit(_ room: Room, windows wins: [LiveWindow]) -> (room: Room, added: Int, floating: Int) {
         var previous = [Int?](repeating: nil, count: wins.count)
@@ -171,9 +172,6 @@ final class WindowEngine {
                     windows = trial
                 }
             }
-            // A window you took out leaves space; its neighbours grow into what's left.
-            let celled = windows.indices.filter { windows[$0].cell != nil }
-            for (i, cell) in zip(celled, GridLayout.fillingHoles(celled.compactMap { windows[$0].cell })) { windows[i].cell = cell }
         }
         var updated = room
         updated.windows = windows

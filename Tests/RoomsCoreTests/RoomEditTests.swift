@@ -62,3 +62,25 @@ private let right = GridCell(col: 6, cols: 6, row: 0, rows: 12)
     let huge = CGRect(x: -3000, y: 0, width: 2500, height: 1400)
     #expect(RoomEdit.floatingFrame(huge, in: visible) == visible)
 }
+
+// MARK: Space left empty on purpose
+
+@Test func aHalfLeftEmptyOnPurposeStaysEmpty() {
+    // Don's 3d room: X as a narrow column, Bambu Studio beside it, the right half free.
+    let area = CGRect(x: 0, y: 37, width: 3840, height: 1590)
+    let x = CGRect(x: 16, y: 53, width: 622, height: 1558)
+    let bambu = CGRect(x: 654, y: 53, width: 1579, height: 1558)
+    let cells = GridLayout.cells(for: [x, bambu], in: area)!
+    #expect(cells[1].col + cells[1].cols <= 7)
+    // So a window added later takes the free half instead of floating over a stretched Bambu.
+    let free = RoomEdit.freeCell(around: cells)!
+    #expect(free.col == cells[1].col + cells[1].cols && free.col + free.cols == 12 && free.rows == 12)
+}
+
+@Test func slightlyLooseWindowsStillCloseTheirSlivers() {
+    let area = CGRect(x: 0, y: 37, width: 1728, height: 1080)
+    // Left window a little short of the middle, right window a little short of the edge.
+    let cells = GridLayout.cells(for: [CGRect(x: 16, y: 53, width: 760, height: 1048),
+                                       CGRect(x: 900, y: 53, width: 700, height: 1048)], in: area)!
+    #expect(cells.map { $0.cols * $0.rows }.reduce(0, +) == 144)
+}
